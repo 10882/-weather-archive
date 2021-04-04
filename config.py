@@ -1,3 +1,4 @@
+#Enter you yandex weather api key here
 apikey = ''
 #Enter weather longitude
 lon = 0
@@ -11,3 +12,5 @@ mysql_server_user = ''
 mysql_server_pass = ''
 #Enter name of mysql database 
 db = ''
+#Enter time of weather (min)
+time = 0
