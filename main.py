@@ -5,14 +5,20 @@ except:
     exit()
 try:
     import yandex_weather_api
-    import matplotlib.pyplot as plt
     import pymysql
     import requests
     import datetime
     import time
+    import threading
 except:
     print('some required libraries not found!')
     exit()
+
+
+
+
+global work
+work = True
 
 
 class weahter:
@@ -22,6 +28,7 @@ class weahter:
         self.wind_dir = None
         self.wind_speed = None
         self.condition = None
+        self.pressure = 'a'
 
         
     """Актуаьлная погода"""
@@ -33,20 +40,16 @@ class weahter:
             self.wind_dir = str(now['wind_dir'])
             self.wind_speed= str(now['wind_speed'])
             self.condition= str(now['condition'])
+            self.pressure = str(now['pressure_mm'])
         except:
-            print('No enternet connection')
-            self.temp = '0'
-            self.wind_dir = '0'
-            self.wind_speed= '0'
-            self.condition= '0'            
-        
+            self.temt = 'on_e'
         return(self)
 
 
     """Возвращает все значения в форме
     Температура(str), Направление ветра (стр) скорость ветра (str), облочность (стр)"""
     def reportall(self):
-        return(self.temp, self.wind_dir, self.wind_speed, self.condition)
+        return(self.temp, self.wind_dir, self.wind_speed, self.condition, self.pressure)
 
 def sql_init():
     sesion = pymysql.Connection(host = config.mysql_server_addres , user = config.mysql_server_user, password = config.mysql_server_pass, database = config.db)
@@ -60,7 +63,7 @@ def sqladd(w1, cursor, sesion):
     date = datetime.datetime(2000, 1,1, 1, 1, 1 )
     date = date.now()
     datel = date.strftime('%Y-%m-%d-%H-%M')
-    cursor.execute('insert into weather values(\''+corteg[0]+'\' , \''+corteg[1]+'\' , \''+corteg[2]+'\' , \''+datel+'\', \''+corteg[3]+'\' );')
+    cursor.execute('insert into weather values(\''+corteg[0]+'\' , \''+corteg[1]+'\' , \''+corteg[2]+'\' , \''+datel+'\', \''+corteg[3]+'\', \''+corteg[4]+'\' );')
     sesion.commit()
 
 def getat(cursor):
@@ -80,22 +83,18 @@ def getat(cursor):
     res = {'temp' : temp, 'windd' : windd, 'winds' : winds, 'date' : date, 'con' : con}
     return(res)
     
-def tempg(res):
-    temlist = res['temp']
-    datelist = res['date']
-    
-    plt.plot(datelist, temlist)
-    print(type(plt.show()))
 
 
 
-    
-if __name__ == '__main__':
-    while True:
-        a = weahter()
-        a = a.now()
-        s, c = sql_init()
-        sqladd(a, c, s)
-    #    res = getat(c)
-    #    tempg(res)
-        time.sleep(3600)
+def mainloopsys():
+        while work == True:
+            a = weahter()
+            a = a.now()
+            if a.temp != 'no_e':
+                s, c = sql_init()
+                sqladd(a, c, s)
+                time.sleep(config.time*60)
+
+if __name__ == "__main__":
+    mainloopsys()
+
