@@ -13,5 +13,6 @@ libs for python:
 You can install them by running the command:
 python -m pip install yandex_weather_api matplotlib pymysql requests
 
+GUI realy coming soon!
 
 by 10882
